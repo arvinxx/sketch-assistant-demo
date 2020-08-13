@@ -1,24 +1,34 @@
-import { AssistantPackage, RuleDefinition } from '@sketch-hq/sketch-assistant-types'
+import { AssistantPackage, RuleContext } from '@sketch-hq/sketch-assistant-types';
+import identifier from './identifier';
+import { ruleFactory } from './utils';
 
-const helloWorld: RuleDefinition = {
-  rule: async (context) => {
-    context.utils.report('Hello world')
-  },
-  name: 'sketch-assistant-template/hello-world',
-  title: 'Hello World',
-  description: 'Reports a hello world message',
-}
+const noCopyRuleFn = async (context: RuleContext) => {
+  const { utils } = context;
+  const { objects } = utils;
+  for (const layer of objects.anyLayer) {
+    if (layer.name.includes('备份')) {
+      utils.report(`图层${layer.name}包含"备份"文本`, layer);
+    }
+  }
+};
+
+const noCopyRule = ruleFactory({
+  title: '不允许图层含有[备份]字样',
+  identifier: 'no-copy',
+  description: '让设计师能够好好地整理图层样式',
+  rule: noCopyRuleFn,
+});
 
 const assistant: AssistantPackage = async () => {
   return {
-    name: 'sketch-assistant-template',
-    rules: [helloWorld],
+    name: identifier,
+    rules: [noCopyRule.rule],
     config: {
       rules: {
-        'sketch-assistant-template/hello-world': { active: true },
+        [noCopyRule.name]: { active: true },
       },
     },
-  }
-}
+  };
+};
 
-export default assistant
+export default assistant;
