@@ -1,1 +1,1 @@
-export default 'sketch-assistant-test';
+export default 'sketch-assistant-demo';
