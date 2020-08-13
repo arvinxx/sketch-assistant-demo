@@ -1,4 +1,4 @@
-import { RuleContext, RuleDefinition } from '@sketch-hq/sketch-assistant-types';
+import { RuleConfig, RuleContext, RuleDefinition } from '@sketch-hq/sketch-assistant-types';
 import identifier from './identifier';
 
 /**
@@ -19,12 +19,20 @@ export type RuleFactory = (param: {
   /**
    * 规则的名称 会直接显示在 Assistant 中
    */
-  title: string;
+  title: string | ((ruleConfig: RuleConfig) => string);
   /**
    * 规则的描述
    */
   description: string;
-}) => { name: string; rule: RuleDefinition };
+}) => Rule;
+
+/**
+ * 规则对象
+ */
+export interface Rule {
+  name: string;
+  rule: RuleDefinition;
+}
 
 export const ruleFactory: RuleFactory = ({ identifier: name, rule, description, title }) => {
   const ruleName = identifier + '/' + name;
